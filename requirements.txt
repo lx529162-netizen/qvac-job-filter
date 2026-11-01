@@ -1,3 +1,5 @@
 telethon>=1.36
 python-dotenv>=1.0
+# QVAC SDK 0.22 calls bare_rpc.RPC(send=...); bare-rpc 0.1.0 changed that signature
+bare-rpc==0.0.1
 # tetherto-qvac-sdk is installed separately, see README (bundled wheel with the worker)
