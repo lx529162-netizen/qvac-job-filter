@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 
 from dotenv import load_dotenv
 from telethon import TelegramClient, events
+from telethon.utils import get_peer_id
 from tetherto.qvac_sdk import Client, completion, load_model, unload_model
 import tetherto.qvac_sdk.models as qvac_models
 
@@ -125,20 +126,42 @@ async def main():
             except Exception as e:
                 print(f"Could not send notice: {e}")
 
-        valid = []
-        for chat in load_channels():
-            try:
-                valid.append(await tg.get_entity(chat))
-            except Exception:
-                pass
-        if not valid:
+        watched: set[int] = set()  # marked ids (-100...) of channels from channels.txt
+
+        async def reload_channels() -> int:
+            ids = set()
+            for chat in load_channels():
+                try:
+                    ids.add(get_peer_id(await tg.get_entity(chat)))
+                except Exception:
+                    pass
+            watched.clear()
+            watched.update(ids)
+            return len(ids)
+
+        async def watch_channels_file():
+            """Picks up edits to channels.txt without a restart (checks once a minute)."""
+            last = os.path.getmtime(CHANNELS_FILE) if os.path.exists(CHANNELS_FILE) else 0
+            while True:
+                await asyncio.sleep(60)
+                mtime = os.path.getmtime(CHANNELS_FILE) if os.path.exists(CHANNELS_FILE) else 0
+                if mtime != last:
+                    last = mtime
+                    await tg.get_dialogs()
+                    count = await reload_channels()
+                    await notify(f"🔄 Список каналов обновлён. Слушаю каналов: {count}.")
+
+        if not await reload_channels():
             await notify("Нет доступных каналов. Проверь channels.txt.")
             return
 
-        await notify(f"🚀 QVAC-агент запущен. Модель: {MODEL_NAME}. Слушаю каналов: {len(valid)}.")
+        await notify(f"🚀 QVAC-агент запущен. Модель: {MODEL_NAME}. Слушаю каналов: {len(watched)}.")
+        asyncio.create_task(watch_channels_file())
 
-        @tg.on(events.NewMessage(chats=valid))
+        @tg.on(events.NewMessage())
         async def handler(event):
+            if event.chat_id not in watched:
+                return
             message = event.message
             text = message.raw_text
             if not text or not PRE_FILTER.search(text):
