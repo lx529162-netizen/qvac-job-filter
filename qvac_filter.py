@@ -25,7 +25,9 @@ load_dotenv()
 API_ID = int(os.environ["TG_API_ID"])
 API_HASH = os.environ["TG_API_HASH"]
 SESSION_NAME = os.getenv("TG_SESSION", "qvac_session")   # must differ from the cloud script's session
-TARGET_CHANNEL = os.environ["TARGET_CHANNEL"]
+TARGET_CHANNEL = os.environ["TARGET_CHANNEL"].strip()
+if TARGET_CHANNEL.lstrip("-").isdigit():
+    TARGET_CHANNEL = int(TARGET_CHANNEL)  # numeric id of a private channel, not a username
 CHANNELS_FILE = os.getenv("CHANNELS_FILE", "channels.txt")
 MODEL_NAME = os.getenv("QVAC_MODEL", "QWEN3_4B_INST_Q4_K_M")
 CTX_SIZE = int(os.getenv("QVAC_CTX_SIZE", "4096"))
