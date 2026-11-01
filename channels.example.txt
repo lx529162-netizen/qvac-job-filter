@@ -1,0 +1,3 @@
+# One channel per line: @username or numeric id
+@example_jobs_channel
+-1001234567890

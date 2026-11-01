@@ -1,0 +1,12 @@
+# secrets and Telegram login sessions
+.env
+*.session
+*.session-journal
+# private data
+channels.txt
+decisions.csv
+*.log
+# python
+__pycache__/
+.venv/
+venv/

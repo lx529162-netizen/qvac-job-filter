@@ -1,0 +1,14 @@
+[Unit]
+Description=QVAC local-AI Telegram job filter
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/qvac-job-filter
+ExecStart=/home/ubuntu/qvac-job-filter/.venv/bin/python qvac_filter.py
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
