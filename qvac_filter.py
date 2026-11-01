@@ -115,6 +115,7 @@ async def main():
         clf = LocalClassifier(t, model_id)
 
         await tg.start()
+        await tg.get_dialogs()  # caches private channels so numeric ids like -100... resolve
 
         async def notify(text):
             try:
