@@ -18,8 +18,10 @@ from datetime import datetime, timezone
 from dotenv import load_dotenv
 from telethon import TelegramClient, events
 from telethon.utils import get_peer_id
-from tetherto.qvac_sdk import Client, completion, load_model, unload_model
+from tetherto.qvac_sdk import Client, load_model, unload_model
 import tetherto.qvac_sdk.models as qvac_models
+
+from classifier import PROMPT_VERSION, LocalClassifier
 
 load_dotenv()
 
@@ -33,7 +35,6 @@ if TARGET_CHANNEL.lstrip("-").isdigit():
 CHANNELS_FILE = os.getenv("CHANNELS_FILE", "channels.txt")
 MODEL_NAME = os.getenv("QVAC_MODEL", "QWEN3_4B_INST_Q4_K_M")
 CTX_SIZE = int(os.getenv("QVAC_CTX_SIZE", "4096"))
-MAX_CHARS = int(os.getenv("MAX_CHARS", "6000"))           # long posts are cut to fit the context window
 LOG_FILE = os.getenv("LOG_FILE", "decisions.csv")
 
 PRE_FILTER = re.compile(
@@ -41,45 +42,6 @@ PRE_FILTER = re.compile(
     r"вакансия|vacancy|job|role|ищем)",
     re.IGNORECASE,
 )
-
-PROMPT = """Проанализируй текст сообщения.
-Определи, является ли это актуальной вакансией на позицию Project Manager, Delivery Manager, Scrum Master или Agile Coach.
-
-1. Возможны опечатки или сленг.
-2. Это должна быть именно вакансия.
-3. Отклоняй вакансии, где роль просто упоминается.
-4. ВАЖНО: "Product Manager", "Продукт менеджер", "Продакт", "Data Manager", "Account Manager" — это ДРУГИЕ профессии. Отвечай NO.
-
-Ответь строго одним словом: YES или NO.
-Текст: {text}"""
-
-
-class LocalClassifier:
-    """Holds one loaded model and answers YES/NO, one request at a time."""
-
-    def __init__(self, transport, model_id: str):
-        self.t = transport
-        self.model_id = model_id
-        self.lock = asyncio.Lock()  # CPU inference: run requests one by one
-
-    async def classify(self, text: str) -> tuple[str, int]:
-        history = [{"role": "user", "content": PROMPT.format(text=text[:MAX_CHARS])}]
-        async with self.lock:
-            started = time.perf_counter()
-            run = completion(
-                self.t,
-                model_id=self.model_id,
-                history=history,
-                stream=False,
-                generation_params={"temp": 0.1, "predict": 32, "reasoning_budget": 0},
-            )
-            raw = await run.text()
-            latency_ms = int((time.perf_counter() - started) * 1000)
-        # Qwen3 may emit an (empty) <think>...</think> block before the answer
-        answer = re.sub(r"<think>.*?(</think>|$)", "", raw, flags=re.S).strip().upper()
-        match = re.search(r"\b(YES|NO)\b", answer)
-        return (match.group(1) if match else "UNCLEAR"), latency_ms, raw
-
 
 def load_channels() -> list:
     if not os.path.exists(CHANNELS_FILE):
@@ -105,7 +67,7 @@ def log_decision(chat_id, channel, msg_id, verdict, latency_ms, chars):
         if new_file:
             w.writerow(["utc_time", "chat_id", "channel", "msg_id", "verdict", "latency_ms", "chars", "model"])
         w.writerow([datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                    chat_id, channel, msg_id, verdict, latency_ms, chars, MODEL_NAME])
+                    chat_id, channel, msg_id, verdict, latency_ms, chars, f"{MODEL_NAME}/{PROMPT_VERSION}"])
 
 
 async def main():
@@ -158,7 +120,7 @@ async def main():
             await notify("Нет доступных каналов. Проверь channels.txt.")
             return
 
-        await notify(f"🚀 QVAC-агент запущен. Модель: {MODEL_NAME}. Слушаю каналов: {len(watched)}.")
+        await notify(f"🚀 QVAC-агент запущен. Модель: {MODEL_NAME}, промт: {PROMPT_VERSION}. Слушаю каналов: {len(watched)}.")
         asyncio.create_task(watch_channels_file())
 
         @tg.on(events.NewMessage())
