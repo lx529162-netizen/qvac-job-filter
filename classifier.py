@@ -164,6 +164,10 @@ class LocalClassifier:
 
     async def classify(self, text: str) -> tuple[str, int, str]:
         """Returns (YES | NO | UNCLEAR, latency in ms, raw model output)."""
+        if not TARGET_ROLE.search(text):
+            # No target role named anywhere in the post: the final rule can only say NO,
+            # so the model is not asked. This skips most chat messages and other jobs.
+            return "NO", 0, "(pre-filter: no target role in text)"
         extract = self.version == "extract"
         kwargs = {}
         if extract and STRICT_JSON:

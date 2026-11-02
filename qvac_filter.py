@@ -11,7 +11,6 @@ import asyncio
 import csv
 import logging
 import os
-import re
 import time
 from datetime import datetime, timezone
 
@@ -21,7 +20,7 @@ from telethon.utils import get_peer_id
 from tetherto.qvac_sdk import Client, load_model, unload_model
 import tetherto.qvac_sdk.models as qvac_models
 
-from classifier import PROMPT_VERSION, LocalClassifier
+from classifier import PROMPT_VERSION, TARGET_ROLE, LocalClassifier
 
 load_dotenv()
 
@@ -37,11 +36,10 @@ MODEL_NAME = os.getenv("QVAC_MODEL", "QWEN3_4B_INST_Q4_K_M")
 CTX_SIZE = int(os.getenv("QVAC_CTX_SIZE", "4096"))
 LOG_FILE = os.getenv("LOG_FILE", "decisions.csv")
 
-PRE_FILTER = re.compile(
-    r"(project|проджект|менеджер|manager|pm|пм|delivery|scrum|master|agile|coach|"
-    r"вакансия|vacancy|job|role|ищем)",
-    re.IGNORECASE,
-)
+# Pre-filter = the same target-role pattern the final rule uses. Posts that name none of the
+# target roles (chat, other professions) never reach the model.
+PRE_FILTER = TARGET_ROLE
+
 
 def load_channels() -> list:
     if not os.path.exists(CHANNELS_FILE):

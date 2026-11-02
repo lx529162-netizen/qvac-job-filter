@@ -62,6 +62,12 @@ The model now only fills a JSON schema: post type (vacancy, digest, resume, othe
 
 Caveats: I labelled the real set myself, and I wrote the worked examples after seeing the failures, so the model may fit this set better than new posts. Timings were taken while the live bot also ran on the same 4 cores. Enforcing the JSON schema at generation time is the main suspect for the slowdown; `STRICT_JSON=false` turns it off for comparison.
 
+### Pre-filter: most posts should never reach the model
+
+The 60 channels carry far more chat and unrelated jobs than vacancies. The keyword pre-filter copied from the cloud script matched fragments without word boundaries: `pm` inside "development", `job`, `ищем`, `manager` in any sales job. Of the 61 real posts that reached the model, only 11 name a target role at all, and all 5 true vacancies are among them.
+
+The pre-filter now uses the same target-role pattern as the final rule, with word boundaries. If a post names none of the target roles, the final rule can only answer NO, so skipping the model loses nothing. On the real set this cuts model calls from 61 to 11 with all 5 vacancies kept. Everything else is decided in microseconds.
+
 ### One-week live run
 
 _Filled in after the run._
