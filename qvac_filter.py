@@ -9,6 +9,7 @@ matches to a private channel. No message text leaves the server.
 
 import asyncio
 import csv
+import logging
 import os
 import re
 import time
@@ -191,8 +192,16 @@ async def main():
         try:
             await tg.run_until_disconnected()
         finally:
-            await unload_model(t, model_id)
+            # On Ctrl+C / systemctl stop the QVAC worker gets the signal too and may already be gone.
+            try:
+                await unload_model(t, model_id)
+            except Exception:
+                pass
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    logging.getLogger("asyncio").setLevel(logging.CRITICAL)  # hide worker disconnect noise on shutdown
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("Stopped.")
