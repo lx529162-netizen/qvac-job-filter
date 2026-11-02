@@ -10,3 +10,5 @@ decisions.csv
 __pycache__/
 .venv/
 venv/
+# real posts used for testing, private
+eval_real.jsonl

@@ -63,6 +63,8 @@ _Filled in after the run._
 
 - **A prompt does not transfer between models.** The prompt that worked on a large cloud model failed on a small local one. Moving to local AI needs a prompt rewrite and a test set, not only a new endpoint.
 - **Build the acceptance test before go-live.** A dozen labelled cases turned "it seems not to work" into "10/12 vs 12/12" in two minutes, and made each change measurable.
+- **A clean test can still mislead.** The rewritten YES/NO prompt scored 12/12 on short synthetic posts. On live posts it forwarded 73 posts in six hours, and only 5 of them were right: resumes, sales and backend jobs, a construction PM. Short, tidy test posts did not look like real ones. The fix was a second test set built from real posts.
+- **Let the small model extract facts, and let code decide.** One YES/NO answer asked a 4B model to judge post type, role, industry and exceptions at once. The current version asks it only to fill a JSON schema (post type, roles being hired, IT or not), and plain code applies the business rule. QVAC enforces the schema at generation time.
 - **Pin dependencies of young SDKs.** QVAC SDK 0.22 broke with the newest `bare-rpc` release from PyPI. Pinning `bare-rpc==0.0.1` fixed it.
 - **CPU-only is enough for low volume.** A 4B model loads in about 8 seconds and answers in 5–11 seconds on a free ARM server with no GPU.
 
