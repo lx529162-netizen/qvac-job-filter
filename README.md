@@ -47,6 +47,21 @@ The cloud prompt was tuned for Claude Haiku. On the 4B model it rejected two pla
 
 The test set is small and written by me, so the one-week live run below is the real check.
 
+### First live run: the YES/NO prompt failed
+
+In six hours on live posts, the rewritten YES/NO prompt forwarded 73 posts. Only 5 were right. The rest were resumes of PMs, sales, backend and affiliate jobs, and a construction PM. On long real posts the 4B model answered YES to almost anything that looked like a job post.
+
+### Fact extraction: the version that works
+
+The model now only fills a JSON schema: post type (vacancy, digest, resume, other), the roles being hired, and whether the job is in IT. Code applies the rule: a vacancy or digest, in IT, with a target role. I extended the synthetic set with the failure types from the live run (rewritten, not copied) and built a private set from the 61 unique posts the failed run forwarded, labelled by hand.
+
+| Test set | Correct | Vacancies caught | Wrong forwards | Median time per post |
+|---|---|---|---|---|
+| Synthetic, 20 posts | **20 / 20** | 8 / 8 | 0 | 76 s |
+| Real posts, 61 | **61 / 61** | 5 / 5 | 0 | 39 s |
+
+Caveats: I labelled the real set myself, and I wrote the worked examples after seeing the failures, so the model may fit this set better than new posts. Timings were taken while the live bot also ran on the same 4 cores. Enforcing the JSON schema at generation time is the main suspect for the slowdown; `STRICT_JSON=false` turns it off for comparison.
+
 ### One-week live run
 
 _Filled in after the run._
