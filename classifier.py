@@ -21,6 +21,8 @@ MAX_CHARS = int(os.getenv("MAX_CHARS", "4000"))  # job titles sit near the top; 
 PROMPT_VERSION = os.getenv("PROMPT_VERSION", "extract")
 INCLUDE_DIGESTS = os.getenv("INCLUDE_DIGESTS", "true").lower() == "true"  # lists of several vacancies
 REQUIRE_IT = os.getenv("REQUIRE_IT", "true").lower() == "true"            # skip construction PM and similar
+# Grammar-constrained JSON is reliable but slow on CPU; "false" relies on the worked examples instead.
+STRICT_JSON = os.getenv("STRICT_JSON", "true").lower() == "true"
 
 # ---------------------------------------------------------------- YES/NO prompts
 CLOUD_PROMPT = """Проанализируй текст сообщения.
@@ -164,7 +166,7 @@ class LocalClassifier:
         """Returns (YES | NO | UNCLEAR, latency in ms, raw model output)."""
         extract = self.version == "extract"
         kwargs = {}
-        if extract:
+        if extract and STRICT_JSON:
             kwargs["response_format"] = {
                 "type": "json_schema",
                 "json_schema": {"name": "post_facts", "schema": EXTRACT_SCHEMA},
@@ -176,7 +178,7 @@ class LocalClassifier:
                 model_id=self.model_id,
                 history=build_history(text, self.version),
                 stream=False,
-                generation_params={"temp": 0.1, "predict": 200 if extract else 32, "reasoning_budget": 0},
+                generation_params={"temp": 0.1, "predict": 160 if extract else 32, "reasoning_budget": 0},
                 **kwargs,
             )
             raw = await run.text()
