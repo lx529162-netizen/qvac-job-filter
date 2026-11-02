@@ -34,7 +34,22 @@ I treated this like a client implementation, not a rewrite.
 
 ## Results
 
-_Filled in after the one-week run._
+### Acceptance test (before go-live)
+
+`eval_prompt.py` runs 12 labelled posts through the local model: 6 real vacancies and 6 traps (Product Manager, an article about PMs, a PM course, a QA job that "works with the PM"). Server: Ampere A1, 4 OCPU, CPU only. Model: Qwen3 4B, Q4_K_M.
+
+| Prompt | Correct | Median time per decision |
+|---|---|---|
+| Cloud prompt, unchanged | 10 / 12 | 5.5 s |
+| Rewritten for the local model | **12 / 12** | 11.1 s |
+
+The cloud prompt was tuned for Claude Haiku. On the 4B model it rejected two plain Project Manager vacancies. The rewritten prompt moves the rules to an English system message, states when to answer YES and when NO, and adds six worked examples. It is twice as slow because the model re-reads the instructions and examples for every post. At 1–5 vacancies a day this does not matter.
+
+The test set is small and written by me, so the one-week live run below is the real check.
+
+### One-week live run
+
+_Filled in after the run._
 
 | Metric | Cloud model | QVAC local |
 |---|---|---|
@@ -46,7 +61,18 @@ _Filled in after the one-week run._
 
 ## What I learned for real implementations
 
-_Filled in after the run._
+- **A prompt does not transfer between models.** The prompt that worked on a large cloud model failed on a small local one. Moving to local AI needs a prompt rewrite and a test set, not only a new endpoint.
+- **Build the acceptance test before go-live.** A dozen labelled cases turned "it seems not to work" into "10/12 vs 12/12" in two minutes, and made each change measurable.
+- **Pin dependencies of young SDKs.** QVAC SDK 0.22 broke with the newest `bare-rpc` release from PyPI. Pinning `bare-rpc==0.0.1` fixed it.
+- **CPU-only is enough for low volume.** A 4B model loads in about 8 seconds and answers in 5–11 seconds on a free ARM server with no GPU.
+
+_More after the one-week run._
+
+## Next steps
+
+- Cache the shared part of the prompt (instructions and examples) to bring the time per decision back down.
+- Extend the role list to Program, Technical Program, Engagement and Implementation Manager in both versions after the comparison week.
+- Try delegated inference: a light device sends posts to this server as a QVAC provider, peer to peer.
 
 ## Setup
 
