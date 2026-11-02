@@ -147,9 +147,14 @@ async def main():
                 await tg.forward_messages(TARGET_CHANNEL, message)
             except Exception as e:
                 if "protected chat" in str(e).lower():
+                    # The owner disabled forwarding: respect it and send only a link, never the text.
+                    username = getattr(chat, "username", None)
+                    link = (f"https://t.me/{username}/{message.id}" if username
+                            else f"https://t.me/c/{chat.id}/{message.id}")
                     await tg.send_message(
                         TARGET_CHANNEL,
-                        f"🛡 **Вакансия из защищенного канала «{channel}»:**\n\n{text}",
+                        f"🛡 Вакансия в канале «{channel}», где запрещена пересылка: {link}",
+                        link_preview=False,
                     )
                 else:
                     await notify(f"Не удалось переслать из «{channel}»:\n{e}")
