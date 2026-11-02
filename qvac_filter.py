@@ -71,12 +71,14 @@ class LocalClassifier:
                 model_id=self.model_id,
                 history=history,
                 stream=False,
-                generation_params={"temp": 0.1, "predict": 8, "reasoning_budget": 0},
+                generation_params={"temp": 0.1, "predict": 32, "reasoning_budget": 0},
             )
-            answer = (await run.text()).strip().upper()
+            raw = await run.text()
             latency_ms = int((time.perf_counter() - started) * 1000)
+        # Qwen3 may emit an (empty) <think>...</think> block before the answer
+        answer = re.sub(r"<think>.*?(</think>|$)", "", raw, flags=re.S).strip().upper()
         match = re.search(r"\b(YES|NO)\b", answer)
-        return (match.group(1) if match else "UNCLEAR"), latency_ms
+        return (match.group(1) if match else "UNCLEAR"), latency_ms, raw
 
 
 def load_channels() -> list:
@@ -169,12 +171,15 @@ async def main():
                 return
             chat = await event.get_chat()
             channel = getattr(chat, "title", None) or str(event.chat_id)
+            print(f"Checking msg {message.id} from «{channel}»...", flush=True)
             try:
-                verdict, latency_ms = await clf.classify(text)
+                verdict, latency_ms, raw = await clf.classify(text)
             except Exception as e:
                 log_decision(event.chat_id, channel, message.id, "ERROR", 0, len(text))
+                print(f"  ERROR: {e!r}", flush=True)
                 await notify(f"Ошибка локальной модели: {e}")
                 return
+            print(f"  {verdict} in {latency_ms} ms, model said: {raw[:80]!r}", flush=True)
             log_decision(event.chat_id, channel, message.id, verdict, latency_ms, len(text))
             if verdict != "YES":
                 return
