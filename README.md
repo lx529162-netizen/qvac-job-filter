@@ -51,6 +51,8 @@ Caveats: I labelled the real set myself, and I wrote the model's worked examples
 4. **Split understanding from decision.** The model now only extracts facts into a JSON schema that QVAC enforces at generation time. A regex on the extracted roles and two plain rules decide. Built a second test set from real posts.
 5. **Tightened the pre-filter.** The keyword filter copied from the cloud script matched fragments such as `pm` inside "development", `job` and any `manager`. It now uses the same role pattern as the final rule, so a skipped post could never have passed anyway.
 
+Each step is recorded with its options and reasons in the [decision log](docs/decisions.md). Open risks are in the [risk log](docs/risks.md).
+
 ## One-week comparison
 
 _Filled in after the run._
