@@ -23,7 +23,7 @@ rule in code: vacancy or digest, in IT, with a target role
 forward to my private channel  +  one row in decisions.csv
 ```
 
-- **Server:** Oracle Cloud Ampere A1 (ARM64), 4 OCPU, 24 GB RAM, Ubuntu 24.04, no GPU
+- **Server:** Oracle Cloud Ampere A1 (ARM64), 2 OCPU, 12 GB RAM, Ubuntu 24.04, no GPU. It had 4 OCPU and 24 GB until 10 November 2026, then moved to the Always Free limit.
 - **Model:** `QWEN3_4B_INST_Q4_K_M` from the QVAC model registry (configurable)
 - **Split of work:** the model reads and describes the post; plain code makes the decision. The rule is visible, testable and changes in one line.
 
@@ -55,14 +55,25 @@ Each step is recorded with its options and reasons in the [decision log](docs/de
 
 ## One-week comparison
 
-_Filled in after the run._
+Both versions ran on the same live stream from 3 to 9 November 2026. Repeated posts of the same vacancy count once. "Target vacancy" means a Project / Delivery Manager, Scrum Master or Agile Coach vacancy in IT.
 
-| Metric | Cloud model | QVAC local |
+| | Cloud model (Claude Haiku) | QVAC local (Qwen3 4B) |
 |---|---|---|
-| Posts forwarded | [ ] | [ ] |
-| Missed real vacancies | [ ] | [ ] |
-| Wrong forwards | [ ] | [ ] |
+| Posts forwarded | 50 | 50 |
+| Forwarded by both | 43 | 43 |
+| Target vacancies only this version caught | 1 | 3, plus 2 weekly digests |
+| Clear mistakes | 2: a team lead job, posted twice | 1: a PM's resume |
+| Not IT or borderline | 4 | 1 |
+| Model calls per day | not measured | 18 |
+| Time per decision | not measured | median 27 s, max 54 s |
 | Post text sent to third parties | yes | no |
+
+What the comparison showed:
+
+- **Quality is on par.** Each version caught vacancies the other missed, and each made its own mistakes. Both forwarded two smart-home installation jobs, which are construction, not IT.
+- **Three of the cloud's extra posts were PM jobs outside IT.** The local version skips them by design (`REQUIRE_IT`). The cloud prompt has no such rule.
+- **The one real miss was in my pre-filter, not the model.** The role pattern did not match "Руководитель ML-проектов" (an "ML-" prefix before "projects") or a typographic hyphen in "Проджект‑менеджер". The post never reached the model. Both forms are fixed and added to the synthetic test set.
+- **Zero failures in a week:** no crashes, no unparseable answers.
 
 ## What I learned for real implementations
 
@@ -71,6 +82,7 @@ _Filled in after the run._
 - **Let a small model extract facts, and let code decide.** One YES/NO answer asked the model to judge post type, role, industry and exceptions at once. Filling three fields is a task a 4B model does reliably.
 - **Keep the expensive step rare.** On a cloud API an extra call costs a second. On your own CPU it costs about 40 seconds. A precise pre-filter matters more locally.
 - **Pin dependencies of young SDKs.** QVAC SDK 0.22 broke with the newest `bare-rpc` release on PyPI. Pinning `bare-rpc==0.0.1` fixed it.
+- **Compare on live data, then read the misses one by one.** The comparison found a bug in plain code, not in the model. Counting alone would have hidden it.
 - **CPU-only works at this volume.** The 4B model loads in about 8 seconds on a free ARM server with no GPU.
 
 ## Next steps

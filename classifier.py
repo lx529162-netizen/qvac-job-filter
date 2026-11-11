@@ -96,13 +96,21 @@ EXTRACT_SCHEMA = {
 # Target roles, decided in code. Same list as the cloud prompt, plus Russian and slang spellings.
 TARGET_ROLE = re.compile(
     r"(project|проджект|проектн\w*|delivery|деливери)[\s/\-\w]{0,20}?(manager|менеджер|lead|лид)"
-    r"|менеджер\w*\s+проект\w*"
-    r"|руководител\w*\s+проект\w*"
+    r"|менеджер\w*\s+(?:\w+-)?проект\w*"       # also "менеджер IT-проектов"
+    r"|руководител\w*\s+(?:\w+-)?проект\w*"    # also "руководитель ML-проектов"
     r"|scrum[\s\-]*master|скрам[\s\-]*мастер"
     r"|agile[\s\-]*coach|аджайл[\s\-]*коуч"
     r"|\bt?pm\b|\bпм\b",
     re.IGNORECASE,
 )
+
+
+DASHES = re.compile(r"[­‐-―−]")  # typographic hyphens, e.g. "Проджект‑менеджер"
+
+
+def names_target_role(text: str) -> bool:
+    """True if the text names a target role. Used as the pre-filter and in the final rule."""
+    return bool(TARGET_ROLE.search(DASHES.sub("-", text)))
 
 
 def build_history(text: str, version: str = PROMPT_VERSION) -> list[dict]:
@@ -150,7 +158,7 @@ def decide(facts: dict) -> str:
     if REQUIRE_IT and facts.get("it_company") is False:
         return "NO"
     roles = facts.get("hired_roles") or []
-    return "YES" if any(TARGET_ROLE.search(str(r)) for r in roles) else "NO"
+    return "YES" if any(names_target_role(str(r)) for r in roles) else "NO"
 
 
 class LocalClassifier:
@@ -164,7 +172,7 @@ class LocalClassifier:
 
     async def classify(self, text: str) -> tuple[str, int, str]:
         """Returns (YES | NO | UNCLEAR, latency in ms, raw model output)."""
-        if not TARGET_ROLE.search(text):
+        if not names_target_role(text):
             # No target role named anywhere in the post: the final rule can only say NO,
             # so the model is not asked. This skips most chat messages and other jobs.
             return "NO", 0, "(pre-filter: no target role in text)"

@@ -35,6 +35,10 @@ CASES = [
      "проектов от идеи до релиза, работа с требованиями. Удалённо, полная занятость", "YES"),
     ("Свежие вакансии недели:\nFrontend Developer — Lumen\nSenior Project Manager — PayFlow\n"
      "Data Analyst — Orbit", "YES"),
+    # found in the one-week comparison: the pre-filter missed these two forms
+    ("Руководитель ML-проектов в IT-компанию: портфель AI-проектов, сроки, риски, команда. "
+     "Опыт управления IT-проектами от 3 лет", "YES"),
+    ("Вакансия Проджект‑менеджер в студию мобильной разработки. Удалённо, полная занятость", "YES"),
     # other professions
     ("Ищем Product Manager в крутую команду, remote, опыт от 5 лет", "NO"),
     ("Ищем Data Manager в аналитический отдел", "NO"),

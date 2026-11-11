@@ -4,6 +4,7 @@ Each entry records a decision, the options I considered, and why I chose one. Ne
 
 | # | Date | Decision | Status |
 |---|---|---|---|
+| D10 | 2026-11-11 | Fix the role pattern after the one-week comparison | active |
 | D9 | 2026-11-02 | Send only a link when a channel disables forwarding | active |
 | D8 | 2026-11-02 | Pre-filter on the target-role pattern, not on broad keywords | active |
 | D7 | 2026-11-02 | Keep the JSON schema enforced, accept slower answers | revisit |
@@ -15,6 +16,13 @@ Each entry records a decision, the options I considered, and why I chose one. Ne
 | D1 | 2026-11-01 | Qwen3 4B, 4-bit, on the existing ARM server | active |
 
 ---
+
+### D10. Fix the role pattern after the one-week comparison
+
+- **Context.** In the comparison week the cloud version caught one target vacancy that QVAC missed: "Руководитель ML-проектов". The post never reached the model, because the role pattern expected "руководитель проектов" with nothing in between. A second post used a typographic hyphen in "Проджект‑менеджер", which the pattern did not match either.
+- **Options.** Widen the pattern to any words between "руководитель" and "проект". Allow one hyphenated prefix such as "ML-" or "IT-", and normalise typographic hyphens.
+- **Decision.** The narrow fix: one hyphenated prefix, plus hyphen normalisation before matching.
+- **Why.** A wider pattern would let more unrelated posts reach a 30-second model call. Both missed forms are now in the synthetic test set, and the week's team-lead posts are still filtered out.
 
 ### D9. Send only a link when a channel disables forwarding
 

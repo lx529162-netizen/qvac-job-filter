@@ -20,7 +20,7 @@ from telethon.utils import get_peer_id
 from tetherto.qvac_sdk import Client, load_model, unload_model
 import tetherto.qvac_sdk.models as qvac_models
 
-from classifier import PROMPT_VERSION, TARGET_ROLE, LocalClassifier
+from classifier import PROMPT_VERSION, LocalClassifier, names_target_role
 
 load_dotenv()
 
@@ -38,7 +38,7 @@ LOG_FILE = os.getenv("LOG_FILE", "decisions.csv")
 
 # Pre-filter = the same target-role pattern the final rule uses. Posts that name none of the
 # target roles (chat, other professions) never reach the model.
-PRE_FILTER = TARGET_ROLE
+PRE_FILTER = names_target_role
 
 
 def load_channels() -> list:
@@ -127,7 +127,7 @@ async def main():
                 return
             message = event.message
             text = message.raw_text
-            if not text or not PRE_FILTER.search(text):
+            if not text or not PRE_FILTER(text):
                 return
             chat = await event.get_chat()
             channel = getattr(chat, "title", None) or str(event.chat_id)
