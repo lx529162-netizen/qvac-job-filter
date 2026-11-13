@@ -39,6 +39,26 @@ CASES = [
     ("Руководитель ML-проектов в IT-компанию: портфель AI-проектов, сроки, риски, команда. "
      "Опыт управления IT-проектами от 3 лет", "YES"),
     ("Вакансия Проджект‑менеджер в студию мобильной разработки. Удалённо, полная занятость", "YES"),
+    # leadership levels and program, engagement and implementation roles
+    ("Hiring: Head of Delivery for a fintech software company. You will run 6 delivery teams "
+     "and own client releases. Remote, EU", "YES"),
+    ("Ищем PMO Director в IT-компанию: портфель проектов, стандарты управления, отчётность "
+     "для правления. Варшава, гибрид", "YES"),
+    ("Technical Program Manager for our cloud platform. Coordinate 8 engineering teams "
+     "across one roadmap. Remote", "YES"),
+    ("Engagement Manager, AI implementations: lead client deployments of our AI platform "
+     "from scoping to production. Remote", "YES"),
+    ("Szukamy: Kierownik Projektu IT w software house. Wdrożenia systemów dla klientów "
+     "z sektora finansowego. Praca hybrydowa, Kraków", "YES"),
+    ("Project Marketing Manager in a SaaS company: run product launch campaigns with the "
+     "product and sales teams. Remote", "YES"),
+    # traps: leadership words without a target role
+    ("Head of Product for a fintech app. Own the product vision and roadmap. Remote", "NO"),
+    ("Lead Java Developer, Spring and Kafka, 6+ years. Remote, B2B", "NO"),
+    ("Head of Sales B2B SaaS, quota-carrying, Warsaw", "NO"),
+    ("Kierownik sklepu, sieć handlowa, Warszawa, pełny etat", "NO"),
+    ("Affiliate Program Manager (iGaming): grow the partner network, negotiate deals. Remote", "NO"),
+    ("Customer Engagement Manager: CRM campaigns, retention and push notifications", "NO"),
     # other professions
     ("Ищем Product Manager в крутую команду, remote, опыт от 5 лет", "NO"),
     ("Ищем Data Manager в аналитический отдел", "NO"),

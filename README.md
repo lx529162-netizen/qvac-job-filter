@@ -1,6 +1,6 @@
 # Local-AI job filter for Telegram (QVAC)
 
-A personal tool that watches about 60 Telegram job channels and forwards only vacancies for my role (Project / Delivery Manager, Scrum Master, Agile Coach) to one private channel.
+A personal tool that watches about 60 Telegram job channels and forwards only vacancies for my roles to one private channel: Project, Program and Delivery Manager, their leadership levels such as Head of Delivery or PMO Director, Engagement and Implementation Manager, Scrum Master and Agile Coach.
 
 The first version sent each candidate post to a cloud LLM through an API. This version runs the model **locally on my own server through [QVAC SDK](https://github.com/tetherto/qvac)**. Post text never leaves the machine, and there is no per-call API dependency.
 

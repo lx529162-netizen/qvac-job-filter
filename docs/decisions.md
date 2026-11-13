@@ -4,6 +4,7 @@ Each entry records a decision, the options I considered, and why I chose one. Ne
 
 | # | Date | Decision | Status |
 |---|---|---|---|
+| D11 | 2026-11-13 | Add leadership, program, engagement and implementation roles as phrases | active |
 | D10 | 2026-11-11 | Fix the role pattern after the one-week comparison | active |
 | D9 | 2026-11-02 | Send only a link when a channel disables forwarding | active |
 | D8 | 2026-11-02 | Pre-filter on the target-role pattern, not on broad keywords | active |
@@ -16,6 +17,13 @@ Each entry records a decision, the options I considered, and why I chose one. Ne
 | D1 | 2026-11-01 | Qwen3 4B, 4-bit, on the existing ARM server | active |
 
 ---
+
+### D11. Add leadership, program, engagement and implementation roles as phrases
+
+- **Context.** The role list missed Head of Delivery, Delivery and PMO Director, Program Manager, PMO, RTE, Engagement and Implementation Manager, and the Polish "Kierownik Projektu". These are roles I apply for.
+- **Options.** Add single words such as `lead`, `head`, `director`, `vp`. Add whole phrases.
+- **Decision.** Whole phrases only, plus exceptions for marketing look-alikes: affiliate, loyalty and partner program managers, customer and player engagement managers. Project Marketing Manager stays in on purpose: a reader of the output channel looks for that role.
+- **Why.** Single words pass almost any job to the model: Lead Java Developer, Head of Sales, VP Marketing, Kierownik sklepu. Each would cost a 30–60 s model call. The new phrases pass 40 target titles and block 24 look-alikes in a quick check, and the synthetic test set now holds six of each kind.
 
 ### D10. Fix the role pattern after the one-week comparison
 

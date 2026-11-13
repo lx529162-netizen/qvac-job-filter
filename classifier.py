@@ -100,7 +100,21 @@ TARGET_ROLE = re.compile(
     r"|руководител\w*\s+(?:\w+-)?проект\w*"    # also "руководитель ML-проектов"
     r"|scrum[\s\-]*master|скрам[\s\-]*мастер"
     r"|agile[\s\-]*coach|аджайл[\s\-]*коуч"
-    r"|\bt?pm\b|\bпм\b",
+    r"|\bt?pm\b|\bпм\b"
+    # Program management. Marketing programs (affiliate, loyalty...) are not target roles.
+    r"|(?<!affiliate )(?<!loyalty )(?<!partner )(?<!referral )(?<!bonus )\bprogram(?:me)?\s+manager"
+    r"|release\s+train\s+engineer|\brte\b"
+    # Leadership levels, as phrases only: "lead", "head" or "director" alone match almost any job.
+    r"|\bhead\s+of\s+(?:it\s+)?(?:delivery|projects?|pmo|agile|program(?:me)?s?|project\s+management)"
+    r"|\b(?:delivery|pmo|program(?:me)?|agile)\s+(?:director|head|lead)\b"
+    r"|\bdirector\s+of\s+(?:it\s+)?(?:delivery|projects?|program(?:me)?s?|pmo)"
+    r"|\bvp\s+(?:of\s+)?delivery|chief\s+delivery\s+officer|\bpmo\b"
+    r"|руководител\w*\s+(?:отдела\s+|направления\s+)?(?:delivery|деливери)"
+    r"|лид\w*\s+проект\w*"                      # "лид проектного офиса"
+    # Client-facing delivery roles. Customer or player engagement is CRM marketing.
+    r"|(?<!customer )(?<!player )(?<!community )(?<!user )(?<!crm )(?<!media )\bengagement\s+manager"
+    r"|implementation\s+manager"
+    r"|kierownik\w*\s+projekt\w*",              # Polish: "Kierownik Projektu"
     re.IGNORECASE,
 )
 
