@@ -36,7 +36,7 @@ Acceptance tests on the server. "Real posts" are 61 posts from the live stream, 
 | Cloud YES/NO prompt, unchanged | synthetic, 12 | 10 / 12 | 4 / 6 | 0 |
 | YES/NO prompt rewritten for the 4B model | synthetic, 12 | 12 / 12 | 6 / 6 | 0 |
 | ↳ same, on the live stream for 6 hours | live | — | 5 | 68 |
-| **Fact extraction + rule in code** | synthetic, 20 | **20 / 20** | 8 / 8 | 0 |
+| **Fact extraction + rule in code** | synthetic, 34 | **34 / 34** | 16 / 16 | 0 |
 | **Fact extraction + rule in code** | real posts, 61 | **61 / 61** | 5 / 5 | 0 |
 
 Time per post that reaches the model: about 40 s on CPU with the JSON schema enforced. The role pre-filter means most posts never reach it: on the real set, model calls dropped from 61 to 11, with all 5 vacancies kept.
