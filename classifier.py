@@ -178,7 +178,8 @@ def decide(facts: dict) -> str:
         return "NO"
     if REQUIRE_IT and facts.get("it_company") is False:
         return "NO"
-    if SKIP_DEFENSE and facts.get("defense") is True:
+    # Vacancies only: the model marks a whole digest as defense even when one job of many is.
+    if SKIP_DEFENSE and facts.get("defense") is True and facts.get("post_type") == "vacancy":
         return "NO"
     roles = facts.get("hired_roles") or []
     return "YES" if any(names_target_role(str(r)) for r in roles) else "NO"
