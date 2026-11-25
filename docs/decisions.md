@@ -18,6 +18,13 @@ Each entry records a decision, the options I considered, and why I chose one. Ne
 
 ---
 
+### D12. Skip defense and military jobs (2026-11-25)
+
+- **Context.** A "Mission Program Manager" post at a defense technology company passed the filter. I do not want defense, military or drone jobs, and such posts often avoid saying "military" directly.
+- **Options.** A keyword list in code. A new field the model fills.
+- **Decision.** A new field, `defense`, and one more rule in code. `SKIP_DEFENSE=false` turns the rule off.
+- **Why.** Keywords catch "defense technology" but miss veiled wording such as "mission partners" or "autonomous systems for government customers". The model reads the whole post. Cybersecurity and antifraud stay allowed, and a digest is skipped only when every job in it is in defense. Five new synthetic cases cover both sides.
+
 ### D11. Add leadership, program, engagement and implementation roles as phrases
 
 - **Context.** The role list missed Head of Delivery, Delivery and PMO Director, Program Manager, PMO, RTE, Engagement and Implementation Manager, and the Polish "Kierownik Projektu". These are roles I apply for.

@@ -15,9 +15,9 @@ role pre-filter (regex) ── no target role named ──► skip, no model cal
       ▼
 QVAC SDK → local LLM ── fills a JSON schema:
       │                 post type (vacancy / digest / resume / other),
-      │                 roles being hired, IT or not
+      │                 roles being hired, IT or not, defense or not
       ▼
-rule in code: vacancy or digest, in IT, with a target role
+rule in code: vacancy or digest, in IT, not defense, with a target role
       │ YES
       ▼
 forward to my private channel  +  one row in decisions.csv

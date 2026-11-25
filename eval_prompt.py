@@ -59,6 +59,18 @@ CASES = [
     ("Kierownik sklepu, sieć handlowa, Warszawa, pełny etat", "NO"),
     ("Affiliate Program Manager (iGaming): grow the partner network, negotiate deals. Remote", "NO"),
     ("Customer Engagement Manager: CRM campaigns, retention and push notifications", "NO"),
+    # defense and military, including veiled wording
+    ("Mission Program Manager | 5 years | Senior\nNorthwatch | Defense technology\n"
+     "150k - 220k USD a year\nUSA, office, relocation available", "NO"),
+    ("Ищем Project Manager в компанию-разработчика БПЛА: R&D, испытания, серийное производство. "
+     "Офис, полный день", "NO"),
+    ("Technical Program Manager at a drone startup: autonomous flight systems for public safety "
+     "and government customers. Security clearance preferred", "NO"),
+    # look-alikes that must still pass
+    ("Project Manager в компанию по кибербезопасности: антифрод и защита от DDoS для банков. "
+     "Удалённо", "YES"),
+    ("Вакансии недели:\nProject Manager — FinSoft\nSystems Engineer — Northwatch Defense\n"
+     "QA Engineer — Orbit", "YES"),
     # other professions
     ("Ищем Product Manager в крутую команду, remote, опыт от 5 лет", "NO"),
     ("Ищем Data Manager в аналитический отдел", "NO"),

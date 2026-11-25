@@ -21,6 +21,7 @@ MAX_CHARS = int(os.getenv("MAX_CHARS", "4000"))  # job titles sit near the top; 
 PROMPT_VERSION = os.getenv("PROMPT_VERSION", "extract")
 INCLUDE_DIGESTS = os.getenv("INCLUDE_DIGESTS", "true").lower() == "true"  # lists of several vacancies
 REQUIRE_IT = os.getenv("REQUIRE_IT", "true").lower() == "true"            # skip construction PM and similar
+SKIP_DEFENSE = os.getenv("SKIP_DEFENSE", "true").lower() == "true"        # skip defense, military and drone jobs
 # Grammar-constrained JSON is reliable but slow on CPU; "false" relies on the worked examples instead.
 STRICT_JSON = os.getenv("STRICT_JSON", "true").lower() == "true"
 
@@ -68,18 +69,23 @@ post_type:
 
 hired_roles: the job titles the employer is hiring for, copied as written in the post. For a digest, list the titles, at most 12. For "resume" and "other", use an empty list.
 
-it_company: true if the job is in IT, software, games, fintech, iGaming, crypto or another tech product. false for construction, real estate, retail, logistics, manufacturing and similar."""
+it_company: true if the job is in IT, software, games, fintech, iGaming, crypto or another tech product. false for construction, real estate, retail, logistics, manufacturing and similar.
+
+defense: true if the employer works for defense or the military, makes weapons, drones or UAVs, or builds systems for armed forces or "mission" customers, even when the post avoids saying so directly. Hints: defense tech, military, армия, оборонка, ВПК, БПЛА, беспилотники, дроны, security clearance. false for ordinary cybersecurity, antifraud or data protection. For a digest, true only if all listed jobs are in defense."""
 
 EXTRACT_EXAMPLES = [
     ("#resume Должность: Project Manager. Опыт 6 лет в финтехе, ищу удалённую работу. TG @someone",
-     {"post_type": "resume", "hired_roles": [], "it_company": True}),
+     {"post_type": "resume", "hired_roles": [], "it_company": True, "defense": False}),
     ("Ищем Sales Manager в iGaming-проект. ЗП от 2000$, выплаты еженедельно. Пиши @hr_contact",
-     {"post_type": "vacancy", "hired_roles": ["Sales Manager"], "it_company": True}),
+     {"post_type": "vacancy", "hired_roles": ["Sales Manager"], "it_company": True, "defense": False}),
     ("Вакансия: менеджер проектов на строительство складского комплекса, Варшава, полная занятость",
-     {"post_type": "vacancy", "hired_roles": ["менеджер проектов"], "it_company": False}),
+     {"post_type": "vacancy", "hired_roles": ["менеджер проектов"], "it_company": False, "defense": False}),
     ("Подборка недели:\nSenior Python Developer — Acme\nProject Manager — Beta Soft\nUX Designer — Gamma Labs",
      {"post_type": "digest", "hired_roles": ["Senior Python Developer", "Project Manager", "UX Designer"],
-      "it_company": True}),
+      "it_company": True, "defense": False}),
+    ("Program Manager, autonomous systems. Lead delivery of our platform to government mission "
+     "partners. US persons only, clearance a plus",
+     {"post_type": "vacancy", "hired_roles": ["Program Manager"], "it_company": True, "defense": True}),
 ]
 
 EXTRACT_SCHEMA = {
@@ -88,8 +94,9 @@ EXTRACT_SCHEMA = {
         "post_type": {"type": "string", "enum": ["vacancy", "digest", "resume", "other"]},
         "hired_roles": {"type": "array", "items": {"type": "string", "maxLength": 80}, "maxItems": 12},
         "it_company": {"type": "boolean"},
+        "defense": {"type": "boolean"},
     },
-    "required": ["post_type", "hired_roles", "it_company"],
+    "required": ["post_type", "hired_roles", "it_company", "defense"],
     "additionalProperties": False,
 }
 
@@ -165,11 +172,13 @@ def parse_facts(raw: str) -> dict | None:
 
 
 def decide(facts: dict) -> str:
-    """The business rule, in plain code: a vacancy for a target role, in IT."""
+    """The business rule, in plain code: a vacancy for a target role, in IT, not in defense."""
     allowed_types = {"vacancy", "digest"} if INCLUDE_DIGESTS else {"vacancy"}
     if facts.get("post_type") not in allowed_types:
         return "NO"
     if REQUIRE_IT and facts.get("it_company") is False:
+        return "NO"
+    if SKIP_DEFENSE and facts.get("defense") is True:
         return "NO"
     roles = facts.get("hired_roles") or []
     return "YES" if any(names_target_role(str(r)) for r in roles) else "NO"
