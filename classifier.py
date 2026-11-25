@@ -71,7 +71,7 @@ hired_roles: the job titles the employer is hiring for, copied as written in the
 
 it_company: true if the job is in IT, software, games, fintech, iGaming, crypto or another tech product. false for construction, real estate, retail, logistics, manufacturing and similar.
 
-defense: true if the employer works for defense or the military, makes weapons, drones or UAVs, or builds systems for armed forces or "mission" customers, even when the post avoids saying so directly. Hints: defense tech, military, армия, оборонка, ВПК, БПЛА, беспилотники, дроны, security clearance. false for ordinary cybersecurity, antifraud or data protection. For a digest, true only if all listed jobs are in defense."""
+defense: true if the employer works for defense or the military, makes weapons, drones or UAVs, or builds systems for armed forces or "mission" customers, even when the post avoids saying so directly. Hints: defense tech, military, армия, оборонка, ВПК, БПЛА, беспилотники, дроны, security clearance. false for ordinary cybersecurity, antifraud or data protection. For a digest, true if any listed job is in defense."""
 
 EXTRACT_EXAMPLES = [
     ("#resume Должность: Project Manager. Опыт 6 лет в финтехе, ищу удалённую работу. TG @someone",
@@ -178,8 +178,7 @@ def decide(facts: dict) -> str:
         return "NO"
     if REQUIRE_IT and facts.get("it_company") is False:
         return "NO"
-    # Vacancies only: the model marks a whole digest as defense even when one job of many is.
-    if SKIP_DEFENSE and facts.get("defense") is True and facts.get("post_type") == "vacancy":
+    if SKIP_DEFENSE and facts.get("defense") is True:
         return "NO"
     roles = facts.get("hired_roles") or []
     return "YES" if any(names_target_role(str(r)) for r in roles) else "NO"

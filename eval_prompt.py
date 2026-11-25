@@ -66,11 +66,11 @@ CASES = [
      "Офис, полный день", "NO"),
     ("Technical Program Manager at a drone startup: autonomous flight systems for public safety "
      "and government customers. Security clearance preferred", "NO"),
-    # look-alikes that must still pass
+    ("Вакансии недели:\nProject Manager — FinSoft\nSystems Engineer — Northwatch Defense\n"
+     "QA Engineer — Orbit", "NO"),   # one defense job is enough to skip a digest
+    # look-alike that must still pass
     ("Project Manager в компанию по кибербезопасности: антифрод и защита от DDoS для банков. "
      "Удалённо", "YES"),
-    ("Вакансии недели:\nProject Manager — FinSoft\nSystems Engineer — Northwatch Defense\n"
-     "QA Engineer — Orbit", "YES"),
     # other professions
     ("Ищем Product Manager в крутую команду, remote, опыт от 5 лет", "NO"),
     ("Ищем Data Manager в аналитический отдел", "NO"),
